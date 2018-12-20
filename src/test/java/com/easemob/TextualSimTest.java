@@ -12,9 +12,12 @@ import java.util.List;
 
 public class TextualSimTest {
 
-    private TextualSim sim = new TextualSim();
+    private final TextualSim sim;
 
-    public TextualSimTest() throws IOException {
+    public TextualSimTest() throws IOException
+    {
+	    DataIO data = new DataIO(TestFiles.test_vectors_file, TestFiles.test_weights_file);
+	    sim = new TextualSim(data, data);
     }
 
     @Test

@@ -10,13 +10,17 @@ import java.util.List;
 
 public class SentenceEmbTest {
 
-    private SentenceEmb emb = new SentenceEmb();
+    private final SentenceEmb emb;
 
-    public SentenceEmbTest() throws IOException {
+    public SentenceEmbTest() throws IOException
+    {
+    	DataIO data = new DataIO(TestFiles.test_vectors_file, TestFiles.test_weights_file);
+	    emb = new SentenceEmb(data, data);
     }
 
     @Test
-    public void testWeightedAvg() throws Exception {
+    public void testWeightedAvg()
+    {
         List<String> text = new ArrayList<>();
         text.add("good");
         text.add("morning");
@@ -24,7 +28,8 @@ public class SentenceEmbTest {
     }
 
     @Test
-    public void testEmb() throws Exception {
+    public void testEmb()
+    {
         List<String> text = new ArrayList<>();
         text.add("good");
         text.add("morning");
@@ -38,7 +43,8 @@ public class SentenceEmbTest {
     }
 
     @Test
-    public void testMatrixEmb() throws Exception {
+    public void testMatrixEmb()
+    {
         List<List<String>> texts = new ArrayList<>();
         List<String> t1 = new ArrayList<>();
         List<String> t2 = new ArrayList<>();

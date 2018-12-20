@@ -1,25 +1,19 @@
 package com.easemob;
 
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.junit.Test;
 
-import java.util.Map;
+import java.nio.file.Paths;
 
-public class DataIOTest {
+import static com.easemob.TestFiles.test_weights_file;
 
-    private DataIO data = new DataIO();
+public class DataIOTest
+{
+	public DataIOTest() {}
 
-    @Test
-    public void testWordMap() throws Exception {
-        String wordFile = "glove.test.txt";
-        Map<String, Array2DRowRealMatrix> wordMap = data.getWordVec(wordFile);
-        assert wordMap.keySet().size() > 0;
-    }
-
-    @Test
-    public void testWeightMap() throws Exception {
-        String wordFile = "idf.txt";
-        Map<String, Double> weightMap = data.getWordWeight(wordFile);
-        assert weightMap.keySet().size() > 0;
+	@Test
+    public void testLoadingFiles() throws Exception
+	{
+		DataIO data = new DataIO(TestFiles.test_vectors_file, test_weights_file);
+        assert data.getNumDimensions() > 0;
     }
 }

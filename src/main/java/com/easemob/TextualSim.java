@@ -8,11 +8,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class TextualSim {
+public class TextualSim
+{
+	private final SentenceEmb sentenceEmb;
 
-    private SentenceEmb sentenceEmb = new SentenceEmb();
-
-    public TextualSim() throws IOException {
+    public TextualSim(Vectors vectors, Weights weights)
+    {
+    	this.sentenceEmb = new SentenceEmb(vectors, weights);
     }
 
     /* evaluate textual similarity between 2 sentences */
