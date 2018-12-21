@@ -2,20 +2,24 @@ package com.easemob;
 
 import org.apache.commons.math3.linear.*;
 import java.util.List;
+import java.util.Optional;
+import java.util.OptionalDouble;
+import java.util.function.Function;
 
 public class SentenceEmb
 {
-	private final Vectors vectors;
-	private final Weights weights;
+	private final Function<String, Optional<double[]>> vectors;
 	private final int num_dimensions;
+	private final Function<String, OptionalDouble> weights;
 	private final double default_weight;
 
-	public SentenceEmb(Vectors vectors, Weights weights)
+	public SentenceEmb(Function<String, Optional<double[]>> vectors, int num_dimensions,
+	                   Function<String, OptionalDouble> weights, double default_weight)
 	{
 		this.vectors = vectors;
 		this.weights = weights;
-		num_dimensions = vectors.getNumDimensions();
-		default_weight = weights.getMinimumWeight();
+		this.num_dimensions = num_dimensions;
+		this.default_weight = default_weight;
 	}
 
 	/* convert a list of words to a weighted vector, return [1 x wordVecLen] */
@@ -27,10 +31,10 @@ public class SentenceEmb
 		for (int i = 0; i < sentLen; i++)
 		{
 			String word = text.get(i);
-			double weight = weights.get_weight(word).orElse(default_weight);
+			double weight = weights.apply(word).orElse(default_weight);
 
 			w.setEntry(i, weight);
-			final double[] array = vectors.get(word).orElse(new double[num_dimensions]);
+			final double[] array = vectors.apply(word).orElse(new double[num_dimensions]);
 			final Array2DRowRealMatrix vector = new Array2DRowRealMatrix(array);
 			emb.setRowMatrix(i, vector.transpose());
 		}

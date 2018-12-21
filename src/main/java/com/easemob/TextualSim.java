@@ -3,18 +3,17 @@ package com.easemob;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
+import java.util.function.Function;
 
 public class TextualSim
 {
 	private final SentenceEmb sentenceEmb;
 
-    public TextualSim(Vectors vectors, Weights weights)
+    public TextualSim(Function<String, Optional<double[]>> vectors, int num_dimensions,
+                      Function<String, OptionalDouble> weights, double default_weight)
     {
-    	this.sentenceEmb = new SentenceEmb(vectors, weights);
+    	this.sentenceEmb = new SentenceEmb(vectors, num_dimensions, weights, default_weight);
     }
 
     /* evaluate textual similarity between 2 sentences */

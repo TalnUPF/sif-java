@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalDouble;
 
-public class DataIO implements Vectors, Weights
+public class DataIO
 {
 	private final Map<String, double[]> vectors = new HashMap<>();
 	private final Map<String, Double> weights = new HashMap<>();
@@ -49,25 +49,21 @@ public class DataIO implements Vectors, Weights
 				.min().orElse(0.0);
 	}
 
-	@Override
 	public OptionalDouble get_weight(String item)
 	{
 		return weights.containsKey(item) ? OptionalDouble.of(weights.get(item)) : OptionalDouble.empty();
 	}
 
-	@Override
 	public double getMinimumWeight()
 	{
 		return min_weight;
 	}
 
-	@Override
-	public Optional<double[]> get(String item)
+	public Optional<double[]> get_vector(String item)
 	{
 		return Optional.ofNullable(vectors.get(item));
 	}
 
-	@Override
 	public int getNumDimensions()
 	{
 		return vectors.values().iterator().next().length;

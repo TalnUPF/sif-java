@@ -1,6 +1,5 @@
 package com.easemob;
 
-import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.RealMatrix;
 import org.junit.Test;
 
@@ -15,7 +14,7 @@ public class SentenceEmbTest {
     public SentenceEmbTest() throws IOException
     {
     	DataIO data = new DataIO(TestFiles.test_vectors_file, TestFiles.test_weights_file);
-	    emb = new SentenceEmb(data, data);
+	    emb = new SentenceEmb(data::get_vector, data.getNumDimensions(), data::get_weight, data.getMinimumWeight());
     }
 
     @Test
