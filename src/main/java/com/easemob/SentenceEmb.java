@@ -1,45 +1,28 @@
 package com.easemob;
 
 import org.apache.commons.math3.linear.*;
+
 import java.util.List;
 import java.util.Optional;
-import java.util.OptionalDouble;
 import java.util.function.Function;
 
 public class SentenceEmb
 {
 	private final Function<String, Optional<double[]>> vectors;
 	private final int num_dimensions;
-	private final Function<String, OptionalDouble> weights;
-	private final double default_weight;
+	private final Function<String, Double> weights;
 
 	public SentenceEmb(Function<String, Optional<double[]>> vectors, int num_dimensions,
-	                   Function<String, OptionalDouble> weights, double default_weight)
+	                   Function<String, Double> weights)
 	{
 		this.vectors = vectors;
 		this.weights = weights;
 		this.num_dimensions = num_dimensions;
-		this.default_weight = default_weight;
 	}
 
-	/* convert a list of words to a weighted vector, return [1 x wordVecLen] */
-	public RealVector weightedAvg(List<String> text)
+	public RealMatrix embedding(List<String> text)
 	{
-		int sentLen = text.size();
-		RealMatrix emb = new Array2DRowRealMatrix(sentLen, num_dimensions);
-		RealVector w = new ArrayRealVector(sentLen);
-		for (int i = 0; i < sentLen; i++)
-		{
-			String word = text.get(i);
-			double weight = weights.apply(word).orElse(default_weight);
-
-			w.setEntry(i, weight);
-			final double[] array = vectors.apply(word).orElse(new double[num_dimensions]);
-			final Array2DRowRealMatrix vector = new Array2DRowRealMatrix(array);
-			emb.setRowMatrix(i, vector.transpose());
-		}
-
-		return emb.preMultiply(w).mapMultiply(1.0 / w.getDimension());
+		return embedding(text, 1);
 	}
 
 	/**
@@ -47,7 +30,7 @@ public class SentenceEmb
 	 * the most common shared principle component(s).
 	 *
 	 * @param text tokenized sentence made of token strings
-	 * @param k    remove how many principle components? (default 0)
+	 * @param k    remove how many principle components?
 	 * @return embedded sentence using weights and word vector
 	 */
 	public RealMatrix embedding(List<String> text, int k)
@@ -62,17 +45,16 @@ public class SentenceEmb
 		return res;
 	}
 
-	public RealMatrix embedding(List<String> text)
+	public RealMatrix matrixEmbedding(List<List<String>> texts)
 	{
-		return embedding(text, 0);
+		return matrixEmbedding(texts, 1);
 	}
-
 	/**
 	 * Convert a list of sentences to weighted vectors and remove
 	 * the most common shared principle component(s).
 	 *
 	 * @param texts tokenized sentences made of token strings
-	 * @param k     remove how many principle components? (default 1)
+	 * @param k     remove how many principle components?
 	 * @return embedded sentences using weights and word vector
 	 */
 	public RealMatrix matrixEmbedding(List<List<String>> texts, int k)
@@ -90,9 +72,24 @@ public class SentenceEmb
 		return res;
 	}
 
-	public RealMatrix matrixEmbedding(List<List<String>> texts)
+	/* convert a list of words to a weighted vector, return [1 x wordVecLen] */
+	public RealVector weightedAvg(List<String> text)
 	{
-		return matrixEmbedding(texts, 1);
+		int sentLen = text.size();
+		RealMatrix emb = new Array2DRowRealMatrix(sentLen, num_dimensions);
+		RealVector w = new ArrayRealVector(sentLen);
+		for (int i = 0; i < sentLen; i++)
+		{
+			String word = text.get(i);
+			double weight = weights.apply(word);
+
+			w.setEntry(i, weight);
+			final double[] array = vectors.apply(word).orElse(new double[num_dimensions]);
+			final Array2DRowRealMatrix vector = new Array2DRowRealMatrix(array);
+			emb.setRowMatrix(i, vector.transpose());
+		}
+
+		return emb.preMultiply(w).mapMultiply(1.0 / w.getDimension());
 	}
 
 	/* remove principle components */

@@ -8,7 +8,6 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.OptionalDouble;
 
 public class DataIO
 {
@@ -49,14 +48,9 @@ public class DataIO
 				.min().orElse(0.0);
 	}
 
-	public OptionalDouble get_weight(String item)
+	public double get_weight(String item)
 	{
-		return weights.containsKey(item) ? OptionalDouble.of(weights.get(item)) : OptionalDouble.empty();
-	}
-
-	public double getMinimumWeight()
-	{
-		return min_weight;
+		return weights.getOrDefault(item, min_weight);
 	}
 
 	public Optional<double[]> get_vector(String item)

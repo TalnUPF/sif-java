@@ -14,7 +14,7 @@ public class SentenceEmbTest {
     public SentenceEmbTest() throws IOException
     {
     	DataIO data = new DataIO(TestFiles.test_vectors_file, TestFiles.test_weights_file);
-	    emb = new SentenceEmb(data::get_vector, data.getNumDimensions(), data::get_weight, data.getMinimumWeight());
+	    emb = new SentenceEmb(data::get_vector, data.getNumDimensions(), data::get_weight);
     }
 
     @Test

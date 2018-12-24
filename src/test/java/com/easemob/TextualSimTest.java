@@ -17,7 +17,7 @@ public class TextualSimTest {
     public TextualSimTest() throws IOException
     {
 	    DataIO data = new DataIO(TestFiles.test_vectors_file, TestFiles.test_weights_file);
-	    sim = new TextualSim(data::get_vector, data.getNumDimensions(), data::get_weight, data.getMinimumWeight());
+	    sim = new TextualSim(data::get_vector, data.getNumDimensions(), data::get_weight);
     }
 
     @Test
