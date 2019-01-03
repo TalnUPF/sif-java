@@ -3,16 +3,15 @@ package com.easemob;
 import org.apache.commons.math3.linear.*;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.function.Function;
 
 public class SentenceEmb
 {
-	private final Function<String, Optional<double[]>> vectors;
+	private final Function<String, double[]> vectors;
 	private final int num_dimensions;
 	private final Function<String, Double> weights;
 
-	public SentenceEmb(Function<String, Optional<double[]>> vectors, int num_dimensions,
+	public SentenceEmb(Function<String, double[]> vectors, int num_dimensions,
 	                   Function<String, Double> weights)
 	{
 		this.vectors = vectors;
@@ -49,6 +48,7 @@ public class SentenceEmb
 	{
 		return matrixEmbedding(texts, 1);
 	}
+
 	/**
 	 * Convert a list of sentences to weighted vectors and remove
 	 * the most common shared principle component(s).
@@ -81,10 +81,9 @@ public class SentenceEmb
 		for (int i = 0; i < sentLen; i++)
 		{
 			String word = text.get(i);
+			final double[] array = vectors.apply(word);
 			double weight = weights.apply(word);
-
 			w.setEntry(i, weight);
-			final double[] array = vectors.apply(word).orElse(new double[num_dimensions]);
 			final Array2DRowRealMatrix vector = new Array2DRowRealMatrix(array);
 			emb.setRowMatrix(i, vector.transpose());
 		}
@@ -93,7 +92,7 @@ public class SentenceEmb
 	}
 
 	/* remove principle components */
-	private RealMatrix removePrincipleComponents(RealMatrix m, int k)
+	public RealMatrix removePrincipleComponents(RealMatrix m, int k)
 	{
 		RealMatrix pc = getTruncatedSVD(m, k);
 		return m.subtract(m.multiply(pc.transpose()).multiply(pc));

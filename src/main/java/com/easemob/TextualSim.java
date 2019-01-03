@@ -10,7 +10,7 @@ public class TextualSim
 {
 	private final SentenceEmb sentenceEmb;
 
-	public TextualSim(Function<String, Optional<double[]>> vectors, int num_dimensions,
+	public TextualSim(Function<String, double[]> vectors, int num_dimensions,
 	                  Function<String, Double> weights)
 	{
 		this.sentenceEmb = new SentenceEmb(vectors, num_dimensions, weights);
@@ -24,6 +24,24 @@ public class TextualSim
 	{
 		RealMatrix e1 = sentenceEmb.embedding(t1, k);
 		RealMatrix e2 = sentenceEmb.embedding(t2, k);
+		// calculate cosine angle
+		RealMatrix inn = inner(e1, e2);
+		RealMatrix e1Norm = sqrt(inner(e1, e1));
+		RealMatrix e2Norm = sqrt(inner(e2, e2));
+		return div(div(inn, e1Norm), e2Norm).getEntry(0, 0);
+	}
+
+	public double score(double[] v1, double[] v2) { return score(v1, v2, 1); }
+	public double score(double[] v1, double[] v2, int k)
+	{
+		RealMatrix e1 = new Array2DRowRealMatrix(v1).transpose();
+		RealMatrix e2 = new Array2DRowRealMatrix(v2).transpose();
+		if (k > 0)
+		{
+			e1 = sentenceEmb.removePrincipleComponents(e1, k);
+			e2 = sentenceEmb.removePrincipleComponents(e2, k);
+		}
+
 		// calculate cosine angle
 		RealMatrix inn = inner(e1, e2);
 		RealMatrix e1Norm = sqrt(inner(e1, e1));
