@@ -3,15 +3,16 @@ package com.easemob;
 import org.apache.commons.math3.linear.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class SentenceEmb
 {
-	private final Function<String, double[]> vectors;
+	private final Function<String, Optional<double[]>> vectors;
 	private final int num_dimensions;
 	private final Function<String, Double> weights;
 
-	public SentenceEmb(Function<String, double[]> vectors, int num_dimensions,
+	public SentenceEmb(Function<String, Optional<double[]>> vectors, int num_dimensions,
 	                   Function<String, Double> weights)
 	{
 		this.vectors = vectors;
@@ -76,16 +77,20 @@ public class SentenceEmb
 	public RealVector weightedAvg(List<String> text)
 	{
 		int sentLen = text.size();
-		RealMatrix emb = new Array2DRowRealMatrix(sentLen, num_dimensions);
-		RealVector w = new ArrayRealVector(sentLen);
-		for (int i = 0; i < sentLen; i++)
+		final RealMatrix emb = new Array2DRowRealMatrix(sentLen, num_dimensions);
+		final RealVector w = new ArrayRealVector(sentLen);
+
+		int i = 0;
+		for (String word : text)
 		{
-			String word = text.get(i);
-			final double[] array = vectors.apply(word);
-			double weight = weights.apply(word);
-			w.setEntry(i, weight);
-			final Array2DRowRealMatrix vector = new Array2DRowRealMatrix(array);
-			emb.setRowMatrix(i, vector.transpose());
+			final Optional<double[]> array = vectors.apply(word);
+			if (array.isPresent())
+			{
+				final Array2DRowRealMatrix vector = new Array2DRowRealMatrix(array.get());
+				emb.setRowMatrix(i, vector.transpose());
+				double weight = weights.apply(word);
+				w.setEntry(i, weight);
+			}
 		}
 
 		return emb.preMultiply(w).mapMultiply(1.0 / w.getDimension());

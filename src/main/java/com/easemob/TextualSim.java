@@ -10,7 +10,7 @@ public class TextualSim
 {
 	private final SentenceEmb sentenceEmb;
 
-	public TextualSim(Function<String, double[]> vectors, int num_dimensions,
+	public TextualSim(Function<String, Optional<double[]>> vectors, int num_dimensions,
 	                  Function<String, Double> weights)
 	{
 		this.sentenceEmb = new SentenceEmb(vectors, num_dimensions, weights);
@@ -62,11 +62,13 @@ public class TextualSim
 		{
 			throw new RuntimeException("sentences must be in pairs, size: (" + s1 + ", " + s2 + ")");
 		}
-//        // removed principle components
-//        for (int i = 0; i< s1; ++i) {
-//            RealMatrix e1 = sentenceEmb.matrixEmbedding(t1, k);
-//            RealMatrix e2 = sentenceEmb.matrixEmbedding(t2, k);
-//        }
+
+		// removed principle components
+        for (int i = 0; i< s1; ++i)
+        {
+            RealMatrix e1 = sentenceEmb.matrixEmbedding(t1, k);
+            RealMatrix e2 = sentenceEmb.matrixEmbedding(t2, k);
+        }
 
 		// calculate cosine angles
 		List<Double> res = new ArrayList<>();

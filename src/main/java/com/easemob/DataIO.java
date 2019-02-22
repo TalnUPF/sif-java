@@ -53,9 +53,9 @@ public class DataIO
 		return weights.getOrDefault(item, min_weight);
 	}
 
-	public double[] get_vector(String item)
+	public Optional<double[]> get_vector(String item)
 	{
-		return vectors.get(item);
+		return Optional.ofNullable(vectors.get(item));
 	}
 
 	public int getNumDimensions()
