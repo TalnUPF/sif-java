@@ -1,9 +1,12 @@
 package com.easemob;
 
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
+import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealMatrix;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Function;
 
 public class TextualSim
@@ -16,7 +19,9 @@ public class TextualSim
 		this.sentenceEmb = new SentenceEmb(vectors, num_dimensions, weights);
 	}
 
-	public RealMatrix getEmbedding(List<String> tokens) { return sentenceEmb.embedding(tokens); }
+	public double [] getWeightedAverage(List<String> tokens) { return sentenceEmb.weightedAvg(tokens).toArray(); }
+	public RealMatrix getEmbedding(List<String> tokens) { return sentenceEmb.embedding(tokens, 1); }
+	public RealMatrix getEmbedding(List<String> tokens, int k) { return sentenceEmb.embedding(tokens, k); }
 
 	/* evaluate textual similarity between 2 sentences */
 	public double score(List<String> t1, List<String> t2) { return score(t1, t2, 1); }
@@ -31,55 +36,18 @@ public class TextualSim
 		return div(div(inn, e1Norm), e2Norm).getEntry(0, 0);
 	}
 
-	public double score(double[] v1, double[] v2) { return score(v1, v2, 1); }
-	public double score(double[] v1, double[] v2, int k)
+	/* evaluate similarity between 2 vectors resulting from the weighted average of word embeddings of tokens in a sentence */
+	public double score(double [] v1, double [] v2) { return score(v1, v2, 1); }
+	public double score(double [] v1, double [] v2, int k)
 	{
-		RealMatrix e1 = new Array2DRowRealMatrix(v1).transpose();
-		RealMatrix e2 = new Array2DRowRealMatrix(v2).transpose();
-		if (k > 0)
-		{
-			e1 = sentenceEmb.removePrincipleComponents(e1, k);
-			e2 = sentenceEmb.removePrincipleComponents(e2, k);
-		}
-
 		// calculate cosine angle
+		RealMatrix e1 = sentenceEmb.embedding(new ArrayRealVector(v1, false), k);
+		RealMatrix e2 = sentenceEmb.embedding(new ArrayRealVector(v2, false), k);
 		RealMatrix inn = inner(e1, e2);
 		RealMatrix e1Norm = sqrt(inner(e1, e1));
 		RealMatrix e2Norm = sqrt(inner(e2, e2));
 		return div(div(inn, e1Norm), e2Norm).getEntry(0, 0);
 	}
-
-	/* evaluate textual similarity between pairs of sentences */
-	public List<Double> scores(List<List<String>> t1, List<List<String>> t2)
-	{
-		return scores(t1, t2, 1);
-	}
-	public List<Double> scores(List<List<String>> t1, List<List<String>> t2, int k)
-	{
-		int s1 = t1.size();
-		int s2 = t2.size();
-		if (s1 != s2)
-		{
-			throw new RuntimeException("sentences must be in pairs, size: (" + s1 + ", " + s2 + ")");
-		}
-
-		// removed principle components
-        for (int i = 0; i< s1; ++i)
-        {
-            RealMatrix e1 = sentenceEmb.matrixEmbedding(t1, k);
-            RealMatrix e2 = sentenceEmb.matrixEmbedding(t2, k);
-        }
-
-		// calculate cosine angles
-		List<Double> res = new ArrayList<>();
-		for (int i = 0; i < s1; i++)
-		{
-			double s = score(t1.get(i), t2.get(i));
-			res.add(s);
-		}
-		return res;
-	}
-
 
 	/* [m x s], [m x s] -> [1, m] */
 	private RealMatrix inner(RealMatrix m1, RealMatrix m2)

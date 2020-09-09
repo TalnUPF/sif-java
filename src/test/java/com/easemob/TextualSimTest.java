@@ -58,7 +58,7 @@ public class TextualSimTest {
         p1.add(s1);
         p2.add(s3);
 
-        System.out.println(sim.scores(p1, p2));
+        //System.out.println(sim.scores(p1, p2));
     }
 
     @Test

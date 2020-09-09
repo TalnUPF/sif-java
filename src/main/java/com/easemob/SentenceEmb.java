@@ -4,7 +4,9 @@ import org.apache.commons.math3.linear.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
+import java.util.stream.IntStream;
 
 public class SentenceEmb
 {
@@ -45,6 +47,25 @@ public class SentenceEmb
 		return res;
 	}
 
+	/**
+	 * Convert a list of words to weighted vector and remove
+	 * the most common shared principle component(s).
+	 *
+	 * @param w vector resulting from weighted average of a sequence of tokens
+	 * @param k    remove how many principle components?
+	 * @return embedded sentence using weights and word vector
+	 */
+	public RealMatrix embedding(RealVector w, int k)
+	{
+		RealMatrix res = new Array2DRowRealMatrix(1, w.getDimension());
+		res.setRowVector(0, w);
+		if (k > 0)
+		{
+			res = removePrincipleComponents(res, k);
+		}
+		return res;
+	}
+
 	public RealMatrix matrixEmbedding(List<List<String>> texts)
 	{
 		return matrixEmbedding(texts, 1);
@@ -76,24 +97,23 @@ public class SentenceEmb
 	/* convert a list of words to a weighted vector, return [1 x wordVecLen] */
 	public RealVector weightedAvg(List<String> text)
 	{
-		int sentLen = text.size();
-		final RealMatrix emb = new Array2DRowRealMatrix(sentLen, num_dimensions);
-		final RealVector w = new ArrayRealVector(sentLen);
+		AtomicInteger num_vectors = new AtomicInteger();
+		final double[] sentenceVector = new double[num_dimensions];
 
-		int i = 0;
 		for (String word : text)
 		{
 			final Optional<double[]> array = vectors.apply(word);
 			if (array.isPresent())
 			{
-				final Array2DRowRealMatrix vector = new Array2DRowRealMatrix(array.get());
-				emb.setRowMatrix(i, vector.transpose());
+				num_vectors.incrementAndGet();
+				double[] v = array.get();
 				double weight = weights.apply(word);
-				w.setEntry(i, weight);
+				IntStream.range(0, num_dimensions).forEach(i -> sentenceVector[i] += v[i] * 0.001 / (0.001 + weight));
 			}
 		}
 
-		return emb.preMultiply(w).mapMultiply(1.0 / w.getDimension());
+		IntStream.range(0, num_dimensions).forEach(i -> sentenceVector[i] /= (1.0 / num_vectors.get()));
+		return new ArrayRealVector(sentenceVector);
 	}
 
 	/* remove principle components */
