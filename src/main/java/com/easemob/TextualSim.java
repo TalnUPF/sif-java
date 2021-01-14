@@ -3,6 +3,7 @@ package com.easemob;
 import org.apache.commons.math3.linear.Array2DRowRealMatrix;
 import org.apache.commons.math3.linear.ArrayRealVector;
 import org.apache.commons.math3.linear.RealMatrix;
+import org.apache.commons.math3.linear.RealVector;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +20,7 @@ public class TextualSim
 		this.sentenceEmb = new SentenceEmb(vectors, num_dimensions, weights);
 	}
 
-	public double [] getWeightedAverage(List<String> tokens) { return sentenceEmb.weightedAvg(tokens).toArray(); }
+	public RealVector getWeightedAverage(List<String> tokens) { return sentenceEmb.weightedAvg(tokens); }
 	public RealMatrix getEmbedding(List<String> tokens) { return sentenceEmb.embedding(tokens, 1); }
 	public RealMatrix getEmbedding(List<String> tokens, int k) { return sentenceEmb.embedding(tokens, k); }
 
